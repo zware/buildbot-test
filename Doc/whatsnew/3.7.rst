@@ -1,0 +1,492 @@
+****************************
+  What's New In Python 3.7
+****************************
+
+:Release: |release|
+:Date: |today|
+
+.. Rules for maintenance:
+
+   * Anyone can add text to this document.  Do not spend very much time
+   on the wording of your changes, because your text will probably
+   get rewritten to some degree.
+
+   * The maintainer will go through Misc/NEWS periodically and add
+   changes; it's therefore more important to add your changes to
+   Misc/NEWS than to this file.
+
+   * This is not a complete list of every single change; completeness
+   is the purpose of Misc/NEWS.  Some changes I consider too small
+   or esoteric to include.  If such a change is added to the text,
+   I'll just remove it.  (This is another reason you shouldn't spend
+   too much time on writing your addition.)
+
+   * If you want to draw your new text to the attention of the
+   maintainer, add 'XXX' to the beginning of the paragraph or
+   section.
+
+   * It's OK to just add a fragmentary note about a change.  For
+   example: "XXX Describe the transmogrify() function added to the
+   socket module."  The maintainer will research the change and
+   write the necessary text.
+
+   * You can comment out your additions if you like, but it's not
+   necessary (especially when a final release is some months away).
+
+   * Credit the author of a patch or bugfix.   Just the name is
+   sufficient; the e-mail address isn't necessary.
+
+   * It's helpful to add the bug/patch number as a comment:
+
+   XXX Describe the transmogrify() function added to the socket
+   module.
+   (Contributed by P.Y. Developer in :issue:`12345`.)
+
+   This saves the maintainer the effort of going through the Mercurial log
+   when researching a change.
+
+This article explains the new features in Python 3.7, compared to 3.6.
+
+For full details, see the :ref:`changelog <changelog>`.
+
+.. note::
+
+   Prerelease users should be aware that this document is currently in draft
+   form. It will be updated substantially as Python 3.7 moves towards release,
+   so it's worth checking back even after reading earlier versions.
+
+
+Summary -- Release highlights
+=============================
+
+.. This section singles out the most important changes in Python 3.7.
+   Brevity is key.
+
+
+.. PEP-sized items next.
+
+
+
+New Features
+============
+
+.. _whatsnew37-pep538:
+
+PEP 538: Legacy C Locale Coercion
+---------------------------------
+
+An ongoing challenge within the Python 3 series has been determining a sensible
+default strategy for handling the "7-bit ASCII" text encoding assumption
+currently implied by the use of the default C locale on non-Windows platforms.
+
+:pep:`538` updates the default interpreter command line interface to
+automatically coerce that locale to an available UTF-8 based locale as
+described in the documentation of the new :envvar:`PYTHONCOERCECLOCALE`
+environment variable. Automatically setting ``LC_CTYPE`` this way means that
+both the core interpreter and locale-aware C extensions (such as
+:mod:`readline`) will assume the use of UTF-8 as the default text encoding,
+rather than ASCII.
+
+The platform support definition in :pep:`11` has also been updated to limit
+full text handling support to suitably configured non-ASCII based locales.
+
+As part of this change, the default error handler for ``stdin`` and ``stdout``
+is now ``surrogateescape`` (rather than ``strict``) when using any of the
+defined coercion target locales (currently ``C.UTF-8``, ``C.utf8``, and
+``UTF-8``). The default error handler for ``stderr`` continues to be
+``backslashreplace``, regardless of locale.
+
+Locale coercion is silent by default, but to assist in debugging potentially
+locale related integration problems, explicit warnings (emitted directly on
+``stderr`` can be requested by setting ``PYTHONCOERCECLOCALE=warn``. This
+setting will also cause the Python runtime to emit a warning if the legacy C
+locale remains active when the core interpreter is initialized.
+
+.. seealso::
+
+    :pep:`538` -- Coercing the legacy C locale to a UTF-8 based locale
+       PEP written and implemented by Nick Coghlan.
+
+
+Other Language Changes
+======================
+
+* More than 255 arguments can now be passed to a function, and a function can
+  now have more than 255 parameters. (Contributed by Serhiy Storchaka in
+  :issue:`12844` and :issue:`18896`.)
+
+* :meth:`bytes.fromhex` and :meth:`bytearray.fromhex` now ignore all ASCII
+  whitespace, not only spaces. (Contributed by Robert Xiao in :issue:`28927`.)
+
+* :exc:`ImportError` now displays module name and module ``__file__`` path when
+  ``from ... import ...`` fails. (Contributed by Matthias Bussonnier in :issue:`29546`.)
+
+* Circular imports involving absolute imports with binding a submodule to
+  a name are now supported.
+  (Contributed by Serhiy Storchaka in :issue:`30024`.)
+
+* ``object.__format__(x, '')`` is now equivalent to ``str(x)`` rather than
+  ``format(str(self), '')``.
+  (Contributed by Serhiy Storchaka in :issue:`28974`.)
+
+
+New Modules
+===========
+
+* None yet.
+
+
+Improved Modules
+================
+
+
+argparse
+--------
+
+The :meth:`~argparse.ArgumentParser.parse_intermixed_args` supports letting
+the user intermix options and positional arguments on the command line,
+as is possible in many unix commands.  It supports most but not all
+argparse features.  (Contributed by paul.j3 in :issue:`14191`.)
+
+
+binascii
+--------
+
+The :func:`~binascii.b2a_uu` function now accepts an optional *backtick*
+keyword argument.  When it's true, zeros are represented by ``'`'``
+instead of spaces.  (Contributed by Xiang Zhang in :issue:`30103`.)
+
+
+calendar
+--------
+
+The class :class:`~calendar.HTMLCalendar` has new class attributes which ease
+the customisation of the CSS classes in the produced HTML calendar.
+(Contributed by Oz Tiram in :issue:`30095`.)
+
+cgi
+---
+
+:func:`~cgi.parse_multipart` returns the same results as
+:class:`~FieldStorage` : for non-file fields, the value associated to a key
+is a list of strings, not bytes.
+(Contributed by Pierre Quentel in :issue:`29979`.)
+
+contextlib
+----------
+
+:func:`contextlib.asynccontextmanager` has been added. (Contributed by
+Jelle Zijlstra in :issue:`29679`.)
+
+dis
+---
+
+The :func:`~dis.dis` function now is able to
+disassemble nested code objects (the code of comprehensions, generator
+expressions and nested functions, and the code used for building nested
+classes).  (Contributed by Serhiy Storchaka in :issue:`11822`.)
+
+distutils
+---------
+
+README.rst is now included in the list of distutils standard READMEs and
+therefore included in source distributions.
+(Contributed by Ryan Gonzalez in :issue:`11913`.)
+
+http.server
+-----------
+
+:class:`~http.server.SimpleHTTPRequestHandler` supports the HTTP
+If-Modified-Since header. The server returns the 304 response status if the
+target file was not modified after the time specified in the header.
+(Contributed by Pierre Quentel in :issue:`29654`.)
+
+Add the parameter ``directory`` to the :class:`~http.server.SimpleHTTPRequestHandler`
+and the ``--directory`` to the command line of the module :mod:`~http.server`.
+With this parameter, the server serves the specified directory, by default it uses the current working directory.
+(Contributed by Stéphane Wirtel and Julien Palard in :issue:`28707`.)
+
+locale
+------
+
+Added another argument *monetary* in :meth:`format_string` of :mod:`locale`.
+If *monetary* is true, the conversion uses monetary thousands separator and
+grouping strings. (Contributed by Garvit in :issue:`10379`.)
+
+math
+----
+
+New :func:`~math.remainder` function, implementing the IEEE 754-style remainder
+operation. (Contributed by Mark Dickinson in :issue:`29962`.)
+
+os
+--
+
+Added support for :class:`bytes` paths in :func:`~os.fwalk`. (Contributed by
+Serhiy Storchaka in :issue:`28682`.)
+
+Added support for :ref:`file descriptors <path_fd>` in :func:`~os.scandir`
+on Unix.  (Contributed by Serhiy Storchaka in :issue:`25996`.)
+
+New function :func:`os.register_at_fork` allows registering Python callbacks
+to be executed on a process fork.  (Contributed by Antoine Pitrou in
+:issue:`16500`.)
+
+string
+------
+
+:class:`string.Template` now lets you to optionally modify the regular
+expression pattern for braced placeholders and non-braced placeholders
+separately.  (Contributed by Barry Warsaw in :issue:`1198569`.)
+
+unittest.mock
+-------------
+
+The :const:`~unittest.mock.sentinel` attributes now preserve their identity
+when they are :mod:`copied <copy>` or :mod:`pickled <pickle>`. (Contributed by
+Serhiy Storchaka in :issue:`20804`.)
+
+xmlrpc.server
+-------------
+
+:meth:`register_function` of :class:`xmlrpc.server.SimpleXMLRPCDispatcher` and
+its subclasses can be used as a decorator. (Contributed by Xiang Zhang in
+:issue:`7769`.)
+
+unicodedata
+-----------
+
+The internal :mod:`unicodedata` database has been upgraded to use `Unicode 10
+<http://www.unicode.org/versions/Unicode10.0.0/>`_. (Contributed by Benjamin
+Peterson.)
+
+urllib.parse
+------------
+
+:func:`urllib.parse.quote` has been updated from RFC 2396 to RFC 3986,
+adding `~` to the set of characters that is never quoted by default.
+(Contributed by Christian Theune and Ratnadeep Debnath in :issue:`16285`.)
+
+uu
+--
+
+Function :func:`~uu.encode` now accepts an optional *backtick*
+keyword argument.  When it's true, zeros are represented by ``'`'``
+instead of spaces.  (Contributed by Xiang Zhang in :issue:`30103`.)
+
+zipapp
+------
+
+Function :func:`zipapp.create_archive` now accepts an optional *filter*
+argument, to allow the user to select which files should be included in the
+archive.
+
+
+Optimizations
+=============
+
+* Added two new opcodes: ``LOAD_METHOD`` and ``CALL_METHOD`` to avoid
+  instantiation of bound method objects for method calls, which results
+  in method calls being faster up to 20%. (Contributed by Yury Selivanov and
+  INADA Naoki in :issue:`26110`.)
+
+* Searching some unlucky Unicode characters (like Ukrainian capital "Є")
+  in a string was to 25 times slower than searching other characters.
+  Now it is slower only by 3 times in worst case.
+  (Contributed by Serhiy Storchaka in :issue:`24821`.)
+
+* Fast implementation from standard C library is now used for functions
+  :func:`~math.tgamma`, :func:`~math.lgamma`, :func:`~math.erf` and
+  :func:`~math.erfc` in the :mod:`math` module. (Contributed by Serhiy
+  Storchaka in :issue:`26121`.)
+
+* The :func:`os.fwalk` function has been sped up by 2 times.  This was done
+  using the :func:`os.scandir` function.
+  (Contributed by Serhiy Storchaka in :issue:`25996`.)
+
+* Optimized case-insensitive matching and searching of :mod:`regular
+  expressions <re>`.  Searching some patterns can now be up to 20 times faster.
+  (Contributed by Serhiy Storchaka in :issue:`30285`.)
+
+* :meth:`selectors.EpollSelector.modify`, :meth:`selectors.PollSelector.modify`
+  and :meth:`selectors.DevpollSelector.modify` may be around 10% faster under
+  heavy loads. (Contributed by Giampaolo Rodola' in :issue:`30014`)
+
+Build and C API Changes
+=======================
+
+* A full copy of libffi is no longer bundled for use when building the
+  :mod:`_ctypes <ctypes>` module on non-OSX UNIX platforms.  An installed copy
+  of libffi is now required when building ``_ctypes`` on such platforms.
+  Contributed by Zachary Ware in :issue:`27979`.
+
+* The fields :c:member:`name` and :c:member:`doc` of structures
+  :c:type:`PyMemberDef`, :c:type:`PyGetSetDef`,
+  :c:type:`PyStructSequence_Field`, :c:type:`PyStructSequence_Desc`,
+  and :c:type:`wrapperbase` are now of type ``const char *`` rather of
+  ``char *``.  (Contributed by Serhiy Storchaka in :issue:`28761`.)
+
+* The result of :c:func:`PyUnicode_AsUTF8AndSize` and :c:func:`PyUnicode_AsUTF8`
+  is now of type ``const char *`` rather of ``char *``. (Contributed by Serhiy
+  Storchaka in :issue:`28769`.)
+
+* Added functions :c:func:`PySlice_Unpack` and :c:func:`PySlice_AdjustIndices`.
+  (Contributed by Serhiy Storchaka in :issue:`27867`.)
+
+* :c:func:`PyOS_AfterFork` is deprecated in favour of the new functions
+  :c:func:`PyOS_BeforeFork`, :c:func:`PyOS_AfterFork_Parent` and
+  :c:func:`PyOS_AfterFork_Child`.  (Contributed by Antoine Pitrou in
+  :issue:`16500`.)
+
+* The Windows build process no longer depends on Subversion to pull in external
+  sources, a Python script is used to download zipfiles from GitHub instead.
+  If Python 3.6 is not found on the system (via ``py -3.6``), NuGet is used to
+  download a copy of 32-bit Python for this purpose.  (Contributed by Zachary
+  Ware in :issue:`30450`.)
+
+
+Deprecated
+==========
+
+- Function :c:func:`PySlice_GetIndicesEx` is deprecated and replaced with
+  a macro if ``Py_LIMITED_API`` is not set or set to the value between
+  ``0x03050400`` and ``0x03060000`` (not including) or ``0x03060100`` or
+  higher.  (Contributed by Serhiy Storchaka in :issue:`27867`.)
+
+- Deprecated :meth:`format` from :mod:`locale`, use the :meth:`format_string`
+  instead. (Contributed by Garvit in :issue:`10379`.)
+
+- Methods
+  :meth:`MetaPathFinder.find_module() <importlib.abc.MetaPathFinder.find_module>`
+  (replaced by
+  :meth:`MetaPathFinder.find_spec() <importlib.abc.MetaPathFinder.find_spec>`
+  ) and
+  :meth:`PathEntryFinder.find_loader() <importlib.abc.PathEntryFinder.find_loader>`
+  (replaced by
+  :meth:`PathEntryFinder.find_spec() <importlib.abc.PathEntryFinder.find_spec>`)
+  both deprecated in Python 3.4 now emit :exc:`DeprecationWarning`. (Contributed
+  by Matthias Bussonnier in :issue:`29576`)
+
+- Using non-integer value for selecting a plural form in :mod:`gettext` is
+  now deprecated.  It never correctly worked. (Contributed by Serhiy Storchaka
+  in :issue:`28692`.)
+
+- The :mod:`macpath` is now deprecated and will be removed in Python 3.8.
+
+
+Changes in the C API
+--------------------
+
+- The type of results of :c:func:`PyThread_start_new_thread` and
+  :c:func:`PyThread_get_thread_ident`, and the *id* parameter of
+  :c:func:`PyThreadState_SetAsyncExc` changed from :c:type:`long` to
+  :c:type:`unsigned long`.
+  (Contributed by Serhiy Storchaka in :issue:`6532`.)
+
+- :c:func:`PyUnicode_AsWideCharString` now raises a :exc:`ValueError` if the
+  second argument is *NULL* and the :c:type:`wchar_t*` string contains null
+  characters.  (Contributed by Serhiy Storchaka in :issue:`30708`.)
+
+
+Windows Only
+------------
+- The python launcher, (py.exe), can accept 32 & 64 bit specifiers **without**
+  having to specify a minor version as well. So ``py -3-32`` and ``py -3-64``
+  become valid as well as ``py -3.7-32``, also the -*m*-64 and -*m.n*-64 forms
+  are now accepted to force 64 bit python even if 32 bit would have otherwise
+  been used. If the specified version is not available py.exe will error exit.
+  (Contributed by Steve Barnes in :issue:`30291`.)
+
+- The launcher can be run as "py -0" to produce a list of the installed pythons,
+  *with default marked with an asterix*. Running "py -0p" will include the paths.
+  If py is run with a version specifier that cannot be matched it will also print
+  the *short form* list of available specifiers.
+  (Contributed by Steve Barnes in :issue:`30362`.)
+
+Removed
+=======
+
+API and Feature Removals
+------------------------
+
+* Unknown escapes consisting of ``'\'`` and an ASCII letter in replacement
+  templates for :func:`re.sub` were deprecated in Python 3.5, and will now
+  cause an error.
+
+* Removed support of the *exclude* argument in :meth:`tarfile.TarFile.add`.
+  It was deprecated in Python 2.7 and 3.2.  Use the *filter* argument instead.
+
+* The ``splitunc()`` function in the :mod:`ntpath` module was deprecated in
+  Python 3.1, and has now been removed.  Use the :func:`~os.path.splitdrive`
+  function instead.
+
+* Functions :func:`bool`, :func:`float`, :func:`list` and :func:`tuple` no
+  longer take keyword arguments.  The first argument of :func:`int` can now
+  be passed only as positional argument.
+
+* Removed previously deprecated in Python 2.4 classes ``Plist``, ``Dict`` and
+  ``_InternalDict`` in the :mod:`plistlib` module.  Dict values in the result
+  of functions :func:`~plistlib.readPlist` and
+  :func:`~plistlib.readPlistFromBytes` are now normal dicts.  You no longer
+  can use attribute access to access items of these dictionaries.
+
+
+Porting to Python 3.7
+=====================
+
+This section lists previously described changes and other bugfixes
+that may require changes to your code.
+
+
+Changes in the Python API
+-------------------------
+
+* :meth:`pkgutil.walk_packages` now raises ValueError if *path* is a string.
+  Previously an empty list was returned. (Contributed by Sanyam Khurana in
+  :issue:`24744`.)
+
+* A format string argument for :meth:`string.Formatter.format`
+  is now :ref:`positional-only <positional-only_parameter>`.
+  Passing it as a keyword argument was deprecated in Python 3.5. (Contributed
+  by Serhiy Storchaka in :issue:`29193`.)
+
+* Attributes :attr:`~http.cookies.Morsel.key`,
+  :attr:`~http.cookies.Morsel.value` and
+  :attr:`~http.cookies.Morsel.coded_value` of class
+  :class:`http.cookies.Morsel` are now read-only.
+  Assigning to them was deprecated in Python 3.5.
+  Use the :meth:`~http.cookies.Morsel.set` method for setting them.
+  (Contributed by Serhiy Storchaka in :issue:`29192`.)
+
+* ``Module``, ``FunctionDef``, ``AsyncFunctionDef``, and
+  ``ClassDef`` AST nodes now have a new ``docstring`` field.
+  The first statement in their body is not considered as a docstring
+  anymore.  ``co_firstlineno`` and ``co_lnotab`` of code object for class
+  and module are affected by this change. (Contributed by INADA Naoki and
+  Eugene Toder in :issue:`29463`.)
+
+* ``PyInterpreterState`` no longer has a ``modules`` field.  Instead use
+  ``sys.modules``.
+
+* The *mode* argument of :func:`os.makedirs` no longer affects the file
+  permission bits of newly-created intermediate-level directories.
+  To set their file permission bits you can set the umask before invoking
+  ``makedirs()``.
+  (Contributed by Serhiy Storchaka in :issue:`19930`.)
+
+* The :attr:`struct.Struct.format` type is now :class:`str` instead of
+  :class:`bytes`. (Contributed by Victor Stinner in :issue:`21071`.)
+
+* Due to internal changes in :mod:`socket` you won't be able to
+  :func:`socket.fromshare` a socket :func:`~socket.socket.share`-ed in older
+  Python versions.
+
+* ``repr`` for :class:`datetime.timedelta` has changed to include keyword arguments
+  in the output. (Contributed by Utkarsh Upadhyay in :issue:`30302`.)
+
+
+CPython bytecode changes
+------------------------
+
+* Added two new opcodes: :opcode:`LOAD_METHOD` and :opcode:`CALL_METHOD`.
+  (Contributed by Yury Selivanov and INADA Naoki in :issue:`26110`.)
